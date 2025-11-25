@@ -5,6 +5,21 @@ import (
 	"testing"
 )
 
+// HELPER FUNCTION
+// verify that a given token.Token t is made of
+// expected type et and of expected literal el
+func testSingleToken(t *testing.T, tok token.Token,
+	et token.TokenType, el string) {
+	if tok.Type == et {
+		if tok.Literal != el {
+			t.Fatalf("tokenliteral wrong. expected=%q, got=%q",
+				el, tok.Literal)
+		}
+	} else {
+		t.Fatalf("tokentype wrong. expected=%q, got=%q",
+			et, tok.Type)
+	}
+}
 func TestNextToken(t *testing.T) {
 	input_1 := `let five = 5;
 let ten = 10;
@@ -117,17 +132,9 @@ if (5 < 10) {
 	}
 
 	l := New(input_1)
-	for i, tt := range tests {
+	for _, tt := range tests {
 		tok := l.NextToken()
 
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, tt.expectedType, tok.Type)
-		}
-
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, tt.expectedLiteral, tok.Literal)
-		}
+		testSingleToken(t, tok, tt.expectedType, tt.expectedLiteral)
 	}
 }
