@@ -20,9 +20,8 @@ type Expression interface {
 	expressionNode()
 }
 
-// Program satisfies the Node interface
+// Program is the root Node and contains a slice of Statement interfaces
 type Program struct {
-	// slice of AST nodes that implement the Statement interface
 	Statements []Statement
 }
 
@@ -42,13 +41,13 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
-// STRUCTS THAT SATISFY THE STATEMENT INTERFACE
+// STRUCTS FOR THE STATEMENT INTERFACE
 
 // LetStatement satisfies the Statement interface
 type LetStatement struct {
 	Token token.Token // token.LET
-	Name  *Identifier
-	Value Expression
+	Name  *Identifier // satisfies an expression e.g. 'x'
+	Value Expression  // expression
 }
 
 func (ls *LetStatement) statementNode() {}
@@ -112,9 +111,9 @@ func (es *ExpressionStatement) TokenLiteral() string {
 	return es.Token.Literal
 }
 
-// STRUCTS THAT SATISFY THE EXPRESSION INTERFACE
+// STRUCTS FOR THE EXPRESSION INTERFACE
 
-// Identifier satisfies the Expression interface
+// Identifier
 type Identifier struct {
 	Token token.Token // token.IDENT
 	Value string
@@ -128,9 +127,9 @@ func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }
 
-// IntegerLiteral satisfies the Expression interface
+// IntegerLiteral
 type IntegerLiteral struct {
-	Token token.Token
+	Token token.Token // token.IDENT
 	Value int64
 }
 
@@ -140,4 +139,50 @@ func (il *IntegerLiteral) String() string {
 }
 func (il *IntegerLiteral) TokenLiteral() string {
 	return il.Token.Literal
+}
+
+// PrefixExpression
+type PrefixExpression struct {
+	Token    token.Token // prefix token. e.g. !
+	Operator string
+	Right    Expression
+}
+
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+
+// InfixExpression
+type InfixExpression struct {
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (ie *InfixExpression) expressionNode() {}
+func (ie *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString(" " + ie.Operator + " ")
+	out.WriteString(ie.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+func (ie *InfixExpression) TokenLiteral() string {
+	return ie.Token.Literal
 }
